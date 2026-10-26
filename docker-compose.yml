@@ -1,0 +1,22 @@
+services:
+  db:
+    image: mysql:8.4
+    container_name: bpi-records-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: localroot
+      MYSQL_DATABASE: records_app
+      MYSQL_USER: records_user
+      MYSQL_PASSWORD: records_password
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./database/init.sql:/docker-entrypoint-initdb.d/001-init.sql:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-plocalroot"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+volumes:
+  mysql_data:

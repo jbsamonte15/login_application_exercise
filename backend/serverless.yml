@@ -1,0 +1,56 @@
+service: bpi-records-api
+frameworkVersion: "3"
+useDotenv: true
+provider:
+  name: aws
+  runtime: nodejs20.x
+  stage: ${opt:stage, 'dev'}
+  region: ap-southeast-1
+  environment:
+    DB_HOST: ${env:DB_HOST, '127.0.0.1'}
+    DB_PORT: ${env:DB_PORT, '3307'}
+    DB_NAME: ${env:DB_NAME, 'records_app'}
+    DB_USER: ${env:DB_USER, 'records_user'}
+    DB_PASSWORD: ${env:DB_PASSWORD, 'records_password'}
+    JWT_SECRET: ${env:JWT_SECRET, 'local-demo-secret-change-me'}
+    CORS_ORIGIN: ${env:CORS_ORIGIN, 'http://localhost:5173'}
+  httpApi:
+    cors:
+      allowedOrigins:
+        - http://localhost:5173
+      allowedHeaders:
+        - Content-Type
+        - Authorization
+      allowedMethods:
+        - GET
+        - POST
+        - PUT
+        - DELETE
+        - OPTIONS
+functions:
+  health:
+    handler: src/handler.health
+    events:
+      - httpApi: { path: /api/health, method: GET }
+  login:
+    handler: src/handler.login
+    events:
+      - httpApi: { path: /api/auth/login, method: POST }
+  listRecords:
+    handler: src/handler.listRecords
+    events:
+      - httpApi: { path: /api/records, method: GET }
+  createRecord:
+    handler: src/handler.createRecord
+    events:
+      - httpApi: { path: /api/records, method: POST }
+  updateRecord:
+    handler: src/handler.updateRecord
+    events:
+      - httpApi: { path: "/api/records/{id}", method: PUT }
+  deleteRecord:
+    handler: src/handler.deleteRecord
+    events:
+      - httpApi: { path: "/api/records/{id}", method: DELETE }
+plugins:
+  - serverless-offline
